@@ -18,8 +18,9 @@ xtensor provides
 - an API following the idioms of the C++ standard library.
 - tools to manipulate array expressions and build upon xtensor.
 
-More documentation: [https://xtensor.readthedocs.io/en/latest/?badge=latest]
-Numpy to xtensor cheatsheet: [https://xtensor.readthedocs.io/en/latest/numpy.html]
+More documentation: https://xtensor.readthedocs.io/en/latest
+
+Numpy to xtensor cheatsheet: https://xtensor.readthedocs.io/en/latest/numpy.html
 
 ### Example
 
