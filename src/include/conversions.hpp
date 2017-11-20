@@ -1,15 +1,26 @@
-// License stuff...
+/***************************************************************************
+* Copyright (c) 2016, Wolf Vollprecht, Johan Mabille and Sylvain Corlay    *
+*                                                                          *
+* Distributed under the terms of the BSD 3-Clause License.                 *
+*                                                                          *
+* The full license is in the file LICENSE, distributed with this software. *
+****************************************************************************/
+
+#ifndef XTENSOR_ROS_CONVERSIONS
+#define XTENSOR_ROS_CONVERSIONS
+
+#include <ros/message_traits.h>
+#include <ros/serialization.h>
 
 #include <xtensor/xarray.hpp>
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xadapt.hpp>
 #include <xtensor/xutils.hpp>
 
+// Including the messages
 #include "xtensor_ros/f64.h"
 #include "xtensor_ros/u8.h"
 
-#include <ros/message_traits.h>
-#include <ros/serialization.h>
 
 xtensor_ros::f64 as_msg(xt::xarray<double>& arr)
 {
@@ -116,10 +127,10 @@ namespace serialization
     template<typename T, class Enabled = void>
     struct UVectorSerializer
     {};
-    
+
     template<typename T>
     struct UVectorSerializer<xt::uvector<T>,
-    std::enable_if_t<xt::xtrivially_default_constructible<T>::value>>
+                             std::enable_if_t<xt::xtrivially_default_constructible<T>::value>>
     {
         typedef xt::uvector<T> vec_type;
         typedef typename vec_type::iterator iterator;
@@ -143,7 +154,7 @@ namespace serialization
             uint32_t len;
             stream.next(len);
             v.resize(len);
-          
+
             if (len > 0)
             {
                 const uint32_t data_len = sizeof(T) * len;
@@ -197,3 +208,5 @@ namespace serialization
 }
 
 }
+
+#endif
