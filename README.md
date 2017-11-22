@@ -1,4 +1,6 @@
-# xtensor ROS
+![xtensor ros](http://quantstack.net/assets/images/xtensor-ros.svg)
+
+## xtensor for ROS, the Robot Operating System
 
 This repository contains bindings for xtensor to the ROS Robotics Operating System.
 It offers helper functions to easily send and receive xtensor and xarray datastructures
@@ -8,9 +10,7 @@ the messages into NumPy datastructures for full interoperability.
 
 ### About [xtensor](https://github.com/QuantStack/xtensor)
 
-Multi-dimensional arrays with broadcasting and lazy computing.
-
-xtensor is a C++ library meant for numerical analysis with multi-dimensional array expressions.
+xtensor is a C++ library meant for numerical calculations with multi-dimensional array expressions.
 
 xtensor provides
 
