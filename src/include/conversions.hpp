@@ -12,48 +12,62 @@
 #include <ros/message_traits.h>
 #include <ros/serialization.h>
 
+// for tuple magic
+#include <tuple>
+#include <type_traits>
+
 #include <xtensor/xarray.hpp>
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xadapt.hpp>
 #include <xtensor/xutils.hpp>
 
 // Including the messages
+#include "xtensor_ros/f32.h"
 #include "xtensor_ros/f64.h"
 #include "xtensor_ros/u8.h"
-
-
-xtensor_ros::f64 as_msg(xt::xarray<double>& arr)
-{
-    using msg_type = xtensor_ros::f64;
-    using _data_type = typename msg_type::_data_type;
-
-    xtensor_ros::f64 msg;
-
-    msg.strides = arr.strides();
-    msg.shape = arr.shape();
-    msg.data = _data_type(arr.data().begin(), arr.data().end());
-    return msg;
-}
-
-auto from_msg(const xtensor_ros::f64& arr)
-{
-    using msg_type = xtensor_ros::f64;
-    using _data_type = typename msg_type::_data_type;
-
-    xtensor_ros::f64 msg;
-
-    return xt::xadapt(arr.data, arr.shape, arr.strides);
-}
+#include "xtensor_ros/u16.h"
+#include "xtensor_ros/u32.h"
+#include "xtensor_ros/u64.h"
+#include "xtensor_ros/i8.h"
+#include "xtensor_ros/i16.h"
+#include "xtensor_ros/i32.h"
+#include "xtensor_ros/i64.h"
 
 
 namespace xmsg
 {
     using namespace xtensor_ros;
+
+    template <typename T, typename Tuple>
+    struct has_type;
+
+    template <typename T, typename Tuple>
+    static constexpr bool has_type_v = has_type<T, Tuple>::value;
+
+    template <typename T>
+    struct has_type<T, std::tuple<>> : std::false_type {};
+
+    template <typename T, typename U, typename... Ts>
+    struct has_type<T, std::tuple<U, Ts...>> : has_type<T, std::tuple<Ts...>> {};
+
+    template <typename T, typename... Ts>
+    struct has_type<T, std::tuple<T, Ts...>> : std::true_type {};
+
+    template<typename T>
+    using is_xtensor_msg = std::enable_if_t<has_type<T,
+          std::tuple<f64, f32, u64, u32, u16, u8, i64, i32, i16, i8>>;
 }
 
 template <class T>
 struct get_xmsg_type;
+template <class T>
+using xmsg_t = typename get_xmsg_type<T>::type;
 
+template <>
+struct get_xmsg_type<float>
+{
+    using type = xmsg::f32;
+};
 template <>
 struct get_xmsg_type<double>
 {
@@ -65,16 +79,71 @@ struct get_xmsg_type<uint8_t>
 {
     using type = xmsg::u8;
 };
+template <>
+struct get_xmsg_type<uint16_t>
+{
+    using type = xmsg::u16;
+};
+template <>
+struct get_xmsg_type<uint32_t>
+{
+    using type = xmsg::u32;
+};
+template <>
+struct get_xmsg_type<uint64_t>
+{
+    using type = xmsg::u64;
+};
+
+template <>
+struct get_xmsg_type<int8_t>
+{
+    using type = xmsg::i8;
+};
+template <>
+struct get_xmsg_type<int16_t>
+{
+    using type = xmsg::i16;
+};
+template <>
+struct get_xmsg_type<int32_t>
+{
+    using type = xmsg::i32;
+};
+template <>
+struct get_xmsg_type<int64_t>
+{
+    using type = xmsg::i64;
+};
+
+template <class T>
+xmsg_t<T> as_msg(xt::xarray<T>& arr)
+{
+    using msg_type = xmsg_t<T>;
+    using _data_type = typename msg_type::_data_type;
+
+    msg_type msg;
+
+    msg.strides = arr.strides();
+    msg.shape = arr.shape();
+    msg.data = _data_type(arr.data().begin(), arr.data().end());
+    return msg;
+}
+
+template <class MsgT, typename = xmsg::is_xtensor_msg<MsgT>>
+auto from_msg(const MsgT& arr)
+{
+    return xt::xadapt(arr.data, arr.shape, arr.strides);
+}
 
 namespace ros
 {
-    namespace message_traits
-    {
-
+namespace message_traits
+{
     template <class T>
     struct MD5Sum<xt::xarray<T>>
     {
-        using msg_type = typename get_xmsg_type<T>::type;
+        using msg_type = xmsg_t<T>;
         using msg_md5 = MD5Sum<msg_type>;
 
         static const char* value()
@@ -92,12 +161,12 @@ namespace ros
     {
         static const char* value()
         {
-            return DataType<xtensor_ros::f64>::value();
+            return DataType<xmsg_t<T>>::value();
         }
 
         static const char* value(const xt::xarray<T>& m)
         {
-            return DataType<xtensor_ros::f64>::value();
+            return DataType<xmsg_t<T>>::value();
         }
     };
 
@@ -106,12 +175,12 @@ namespace ros
     {
         static const char* value()
         {
-            return Definition<xtensor_ros::f64>::value();
+            return Definition<xmsg_t<T>>::value();
         }
 
         static const char* value(const xt::xarray<T>& m)
         {
-            return Definition<xtensor_ros::f64>::value();
+            return Definition<xmsg_t<T>>::value();
         }
     };
 
