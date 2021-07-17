@@ -68,7 +68,7 @@ add_message_files(
   FILES
   f64.msg
   u8.msg
-  composed.msg
+  # composed.msg
 )
 
 ## Generate services in the 'srv' folder
