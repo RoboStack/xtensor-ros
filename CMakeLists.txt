@@ -66,8 +66,19 @@ find_package(xtensor REQUIRED)
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
+  f32.msg
   f64.msg
+
   u8.msg
+  u16.msg
+  u32.msg
+  u64.msg
+
+  i8.msg
+  i16.msg
+  i32.msg
+  i64.msg
+
   # composed.msg
 )
 
